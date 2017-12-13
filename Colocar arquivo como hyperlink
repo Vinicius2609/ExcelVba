@@ -1,0 +1,24 @@
+Sub colocar_hiperlink()
+
+Dim caminho As String
+Dim arquivo As String
+Dim teste As Long
+Dim cell As Range
+Dim ref As String
+
+caminho = "C:\Users\Vinicius\DOCUMENTOS SELECIONADOS\"
+
+For Each cell In Selection
+
+    ref = cell.Offset(0, -18).Value 'Coluna em que estão os dados
+    arquivo = caminho & ref & ".pdf"
+    teste = Len(Dir(arquivo))
+    If teste > 0 Then
+    cell.Hyperlinks.Add Anchor:=cell, Address:=arquivo, TextToDisplay:=ref
+    End If
+    
+Next cell
+
+
+End Sub
+
