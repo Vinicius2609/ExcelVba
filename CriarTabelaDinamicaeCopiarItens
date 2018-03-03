@@ -1,0 +1,131 @@
+Sub criar_td()
+'Objetivo da rotina é criar uma tabela dinamica, copiar os itens e colocar em uma planilha de resumo
+
+Dim nome As Variant
+Dim origem As String
+Dim caminho As String
+Dim fim As Long
+Dim lista As New Collection
+
+
+Application.ScreenUpdating = False
+Application.DisplayAlerts = False
+
+caminho = "C:\Users\Vinicius\OneDrive - BKR - LOPES MACHADO AUDITORES E CONSULTORES - LMC\Unimed\Analises\"
+
+origem = ThisWorkbook.Name
+Sheets("BD").Activate
+
+'Abaixo código de aonde estão os nomes dos arquivos
+For i = 7 To 18
+    lista.Add Range("K" & i).Value2
+Next i
+
+
+For Each nome In lista
+
+    Workbooks.Open (caminho & nome & ".xlsb")
+    
+    Workbooks(nome).Activate
+    
+    fim = Range("E2").End(xlDown).Row
+    
+
+    Sheets.Add
+    'Codígo padrão para criação de Tabela Dinamica, não foi melhorarado.
+    ActiveWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:= _
+        "Planilha1!R2C1:R" & fim & "C5", Version:=6).CreatePivotTable TableDestination:= _
+        "Planilha2!R3C1", TableName:="Tabela dinâmica3", DefaultVersion:=6
+    Sheets("Planilha2").Select
+    Cells(3, 1).Select
+    With ActiveSheet.PivotTables("Tabela dinâmica3")
+        .ColumnGrand = True
+        .HasAutoFormat = True
+        .DisplayErrorString = False
+        .DisplayNullString = True
+        .EnableDrilldown = True
+        .ErrorString = ""
+        .MergeLabels = False
+        .NullString = ""
+        .PageFieldOrder = 2
+        .PageFieldWrapCount = 0
+        .PreserveFormatting = True
+        .RowGrand = True
+        .SaveData = True
+        .PrintTitles = False
+        .RepeatItemsOnEachPrintedPage = True
+        .TotalsAnnotation = False
+        .CompactRowIndent = 1
+        .InGridDropZones = False
+        .DisplayFieldCaptions = True
+        .DisplayMemberPropertyTooltips = False
+        .DisplayContextTooltips = True
+        .ShowDrillIndicators = True
+        .PrintDrillIndicators = False
+        .AllowMultipleFilters = False
+        .SortUsingCustomLists = True
+        .FieldListSortAscending = False
+        .ShowValuesRow = False
+        .CalculatedMembersInFilters = False
+        .RowAxisLayout xlCompactRow
+    End With
+    With ActiveSheet.PivotTables("Tabela dinâmica3").PivotCache
+        .RefreshOnFileOpen = False
+        .MissingItemsLimit = xlMissingItemsDefault
+    End With
+    
+    ActiveSheet.PivotTables("Tabela dinâmica3").RepeatAllLabels xlRepeatLabels
+    With ActiveSheet.PivotTables("Tabela dinâmica3").PivotFields("Descrição")
+        .Orientation = xlRowField
+        .Position = 1
+    End With
+    
+    'Como há itens em branco, o padrão da TD é realizar uma contagem, tentei modificar isso usando xlSum ao invés de xlCount
+    'Mas de erro, portanto reproduzi o gravador de macros
+    
+    ActiveSheet.PivotTables("Tabela dinâmica3").AddDataField ActiveSheet. _
+        PivotTables("Tabela dinâmica3").PivotFields("Soma de Débitos"), _
+        "Contagem de Soma de Débitos", xlCount
+    ActiveSheet.PivotTables("Tabela dinâmica3").AddDataField ActiveSheet. _
+        PivotTables("Tabela dinâmica3").PivotFields("Soma de Créditos"), _
+        "Contagem de Soma de Créditos", xlCount
+    With ActiveSheet.PivotTables("Tabela dinâmica3").PivotFields( _
+        "Contagem de Soma de Débitos")
+        .Caption = "Soma de Soma de Débitos"
+        .Function = xlSum
+    End With
+    With ActiveSheet.PivotTables("Tabela dinâmica3").PivotFields( _
+        "Contagem de Soma de Créditos")
+        .Caption = "Soma de Soma de Créditos"
+        .Function = xlSum
+    End With
+
+    'A tabela dinamica sempre tinha a mesma configuração de linhas e colunas
+    Range("B4:C9").Copy
+    
+    Workbooks(origem).Activate
+    Range("A1").End(xlDown).Offset(1, 1).Select
+    Selection.PasteSpecial
+    
+    Workbooks(nome).Activate
+    Range("A4:A9").Copy
+    
+    Workbooks(origem).Activate
+    Range("A1").End(xlDown).Offset(1, 3).Select
+    Selection.PasteSpecial
+    
+    Application.CutCopyMode = False
+    Workbooks(nome).Close
+    
+    Workbooks(origem).Activate
+    
+    For i = 1 To 6
+        Range("A1").End(xlDown).Offset(1, 0).Value = nome
+    Next i
+
+    
+Next nome
+
+Application.ScreenUpdating = True
+Application.DisplayAlerts = True
+End Sub
