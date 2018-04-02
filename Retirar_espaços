@@ -1,0 +1,13 @@
+Function retirar_espaço(palavra As String) As String
+
+Dim resposta As String
+
+For i = 1 To Len(palavra)
+    If Not Mid(palavra, i, 1) = " " Then
+        resposta = resposta & Mid(palavra, i, 1)
+    End If
+Next i
+
+retirar_espaço = resposta
+
+End Function
