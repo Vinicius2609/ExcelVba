@@ -1,0 +1,41 @@
+Sub chaves()
+'O objetivo dessa macro é prever qual a probabilidade de em um molho de X chaves acertar qual a correta.
+
+Dim tentativas As Integer
+Dim n_tentativas As Integer
+Dim vez As Integer
+Dim mtx()
+Dim vezes_a_ser_executado As Long
+
+'Parametros
+n_tentativas = 10
+vezes_a_ser_executado = 1000
+
+tentativas = n_tentativas
+ReDim mtx(1 To tentativas, 1 To 1)
+
+For vezes_a_ser_executado = 1 To vezes_a_ser_executado
+
+Do While tentativas > 0
+    vez = WorksheetFunction.RandBetween(1, tentativas)
+    
+'Por padrão a chave número 1 é a chave correta.
+    If vez = 1 Then
+        mtx(tentativas, 1) = mtx(tentativas, 1) + 1
+        Exit Do
+    Else
+        tentativas = tentativas - 1
+    End If
+Loop
+
+tentativas = n_tentativas
+
+Next vezes_a_ser_executado
+
+'Escrevendo o resultado no excel
+For i = LBound(mtx) To UBound(mtx)
+    Range("A" & i).Value = i
+    Range("B" & i).Value = mtx(i, 1)
+Next i
+
+End Sub
